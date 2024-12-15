@@ -753,4 +753,106 @@ const NSInteger AIRMapMaxZoomLevel = 20;
     return log2(360 * ((width / normalizingFactor) / spanStraight));
 }
 
+- (void)setIncludePointsOfInterestCategories:(NSArray<NSString *> *)includePointsOfInterestCategories {
+    _includePointsOfInterestCategories = [includePointsOfInterestCategories copy];
+    [self updatePOIFilter];
+}
+
+- (void)setExcludePointsOfInterestCategories:(NSArray<NSString *> *)excludePointsOfInterestCategories {
+    _excludePointsOfInterestCategories = [excludePointsOfInterestCategories copy];
+    [self updatePOIFilter];
+}
+
+- (void)updatePOIFilter {
+    if (@available(iOS 13.0, *)) {
+        // Convert user-friendly input to valid MKPointOfInterestCategory constants
+        NSArray<NSString *> *includeArray = [self mapUserInputToPOICategories:self.includePointsOfInterestCategories ?: @[]];
+        NSArray<NSString *> *excludeArray = [self mapUserInputToPOICategories:self.excludePointsOfInterestCategories ?: @[]];
+
+        NSLog(@"Converted include categories: %@", includeArray);
+        NSLog(@"Converted exclude categories: %@", excludeArray);
+
+        MKPointOfInterestFilter *filter = nil;
+
+        if (includeArray.count > 0) {
+            filter = [[MKPointOfInterestFilter alloc] initIncludingCategories:includeArray];
+            NSLog(@"Applying include filter with categories: %@", includeArray);
+        } else if (excludeArray.count > 0) {
+            filter = [[MKPointOfInterestFilter alloc] initExcludingCategories:excludeArray];
+            NSLog(@"Applying exclude filter with categories: %@", excludeArray);
+        } else {
+            NSLog(@"No filter applied.");
+        }
+
+        self.pointOfInterestFilter = filter;
+    } else {
+        NSLog(@"iOS version does not support MKPointOfInterestFilter.");
+        self.pointOfInterestFilter = nil;
+    }
+}
+
+- (NSArray<NSString *> *)mapUserInputToPOICategories:(NSArray<NSString *> *)userInput {
+    // Static dictionary to map user-friendly input to valid constants
+    static NSDictionary<NSString *, NSString *> *poiCategoryMapping;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        poiCategoryMapping = @{
+            @"airport": MKPointOfInterestCategoryAirport,
+            @"amusementPark": MKPointOfInterestCategoryAmusementPark,
+            @"aquarium": MKPointOfInterestCategoryAquarium,
+            @"atm": MKPointOfInterestCategoryATM,
+            @"bakery": MKPointOfInterestCategoryBakery,
+            @"bank": MKPointOfInterestCategoryBank,
+            @"beach": MKPointOfInterestCategoryBeach,
+            @"beauty": MKPointOfInterestCategoryBeauty,
+            @"brewery": MKPointOfInterestCategoryBrewery,
+            @"cafe": MKPointOfInterestCategoryCafe,
+            @"campground": MKPointOfInterestCategoryCampground,
+            @"carRental": MKPointOfInterestCategoryCarRental,
+            @"distillery": MKPointOfInterestCategoryDistillery,
+            @"evCharger": MKPointOfInterestCategoryEVCharger,
+            @"fireStation": MKPointOfInterestCategoryFireStation,
+            @"fitnessCenter": MKPointOfInterestCategoryFitnessCenter,
+            @"foodMarket": MKPointOfInterestCategoryFoodMarket,
+            @"gasStation": MKPointOfInterestCategoryGasStation,
+            @"hospital": MKPointOfInterestCategoryHospital,
+            @"hotel": MKPointOfInterestCategoryHotel,
+            @"library": MKPointOfInterestCategoryLibrary,
+            @"marina": MKPointOfInterestCategoryMarina,
+            @"movieTheater": MKPointOfInterestCategoryMovieTheater,
+            @"museum": MKPointOfInterestCategoryMuseum,
+            @"nationalPark": MKPointOfInterestCategoryNationalPark,
+            @"nightlife": MKPointOfInterestCategoryNightlife,
+            @"park": MKPointOfInterestCategoryPark,
+            @"parking": MKPointOfInterestCategoryParking,
+            @"pharmacy": MKPointOfInterestCategoryPharmacy,
+            @"police": MKPointOfInterestCategoryPolice,
+            @"postOffice": MKPointOfInterestCategoryPostOffice,
+            @"publicTransport": MKPointOfInterestCategoryPublicTransport,
+            @"restaurant": MKPointOfInterestCategoryRestaurant,
+            @"restroom": MKPointOfInterestCategoryRestroom,
+            @"school": MKPointOfInterestCategorySchool,
+            @"stadium": MKPointOfInterestCategoryStadium,
+            @"store": MKPointOfInterestCategoryStore,
+            @"theater": MKPointOfInterestCategoryTheater,
+            @"university": MKPointOfInterestCategoryUniversity,
+            @"winery": MKPointOfInterestCategoryWinery,
+            @"zoo": MKPointOfInterestCategoryZoo,
+        };
+    });
+
+    // Map user input to valid MKPointOfInterestCategory values
+    NSMutableArray<NSString *> *mappedCategories = [NSMutableArray array];
+    for (NSString *input in userInput) {
+        NSString *mappedCategory = poiCategoryMapping[input];
+        if (mappedCategory) {
+            [mappedCategories addObject:mappedCategory];
+        } else {
+            NSLog(@"Invalid category input: %@", input);
+        }
+    }
+
+    return [mappedCategories copy];
+}
+
 @end

@@ -587,6 +587,24 @@ export type MapViewProps = ViewProps & {
   showsPointsOfInterest?: boolean;
 
   /**
+   * Categories of points of interest to include on the map.
+   * Provide an array of category identifiers (e.g., "Restaurant", "Park").
+   *
+   * @platform iOS: Apple Maps only
+   * @platform Android: Not supported
+   */
+  includePointsOfInterestCategories?: string[];
+
+  /**
+   * Categories of points of interest to exclude from the map.
+   * Provide an array of category identifiers (e.g., "Restaurant", "Park").
+   *
+   * @platform iOS: Apple Maps only
+   * @platform Android: Not supported
+   */
+  excludePointsOfInterestCategories?: string[];
+
+  /**
    * A Boolean indicating whether the map shows scale information.
    *
    * @default true

@@ -30,6 +30,8 @@ extern const NSInteger AIRMapMaxZoomLevel;
 @property (nonatomic, copy) NSString *userLocationAnnotationTitle;
 @property (nonatomic, assign) BOOL followUserLocation;
 @property (nonatomic, assign) BOOL userLocationCalloutEnabled;
+@property (nonatomic, strong) NSArray<NSString *> *includePointsOfInterestCategories;
+@property (nonatomic, strong) NSArray<NSString *> *excludePointsOfInterestCategories;
 @property (nonatomic, assign) BOOL hasStartedRendering;
 @property (nonatomic, assign) BOOL cacheEnabled;
 @property (nonatomic, assign) BOOL loadingEnabled;
